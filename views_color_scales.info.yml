@@ -1,0 +1,7 @@
+name: 'Views Color Scales'
+type: module
+description: 'Automatically enhances ALL Views numeric fields with optional Excel-style color scaling.'
+package: Views
+core_version_requirement: ^10.2 || ^11
+dependencies:
+  - drupal:views

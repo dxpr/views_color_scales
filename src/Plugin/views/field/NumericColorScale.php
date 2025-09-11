@@ -3,9 +3,11 @@
 namespace Drupal\views_color_scales\Plugin\views\field;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\views\Plugin\views\field\NumericField;
 use Drupal\views\Attribute\ViewsField;
 use Drupal\views\ResultRow;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Render a field as a numeric value with Excel-style color scaling.
@@ -17,6 +19,43 @@ use Drupal\views\ResultRow;
  */
 #[ViewsField("numeric_color_scale")]
 class NumericColorScale extends NumericField {
+
+  /**
+   * The renderer service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
+   * Constructs a NumericColorScale object.
+   *
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin_id for the plugin instance.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer service.
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, RendererInterface $renderer) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->renderer = $renderer;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    /** @var static */
+    return new self(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('renderer')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -148,7 +187,7 @@ class NumericColorScale extends NumericField {
     $textColor = $this->getContrastColor($backgroundColor);
 
     // Wrap in span with background color
-    return [
+    $render_array = [
       '#type' => 'html_tag',
       '#tag' => 'span',
       '#value' => $rendered,
@@ -161,6 +200,8 @@ class NumericColorScale extends NumericField {
         ]),
       ],
     ];
+    
+    return $this->renderer->render($render_array);
   }
 
   /**

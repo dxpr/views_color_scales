@@ -1,0 +1,31 @@
+views.field.numeric_color_scale:
+  type: views.field.numeric
+  label: 'Numeric with color scale'
+  mapping:
+    color_scale:
+      type: boolean
+      label: 'Enable color scale'
+    color_scale_min:
+      type: string
+      label: 'Minimum value'
+    color_scale_max:
+      type: string
+      label: 'Maximum value'
+    color_scale_auto:
+      type: boolean
+      label: 'Auto-detect minimum and maximum values'
+    color_scale_min_color:
+      type: color_hex
+      label: 'Minimum value color'
+    color_scale_max_color:
+      type: color_hex
+      label: 'Maximum value color'
+    color_scale_min_label:
+      type: label
+      label: 'Minimum value label'
+    color_scale_mid_label:
+      type: label
+      label: 'Middle value label'
+    color_scale_max_label:
+      type: label
+      label: 'Maximum value label'

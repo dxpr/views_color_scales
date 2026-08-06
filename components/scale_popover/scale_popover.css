@@ -1,0 +1,88 @@
+.vcs-value {
+  display: inline-block;
+  min-width: 40px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-align: center;
+  background-color: var(--vcs-bg, transparent);
+  color: var(--vcs-fg, inherit);
+  cursor: default;
+}
+
+.vcs-popover {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  min-width: 240px;
+  padding: 0.75rem 1rem 0.5rem;
+  border: 1px solid #d4d4d8;
+  border-radius: 6px;
+  background: #fff;
+  color: #222;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  font-size: 0.8rem;
+}
+
+.vcs-popover-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.4rem;
+  font-weight: bold;
+}
+
+.vcs-popover-label--mid {
+  text-align: center;
+}
+
+.vcs-popover-label--max {
+  text-align: right;
+}
+
+.vcs-popover-scale {
+  position: relative;
+  height: 10px;
+  margin-bottom: 1.4rem;
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--vcs-min-color, #ffb3b3), var(--vcs-max-color, #b3ffb3));
+}
+
+.vcs-popover-marker {
+  position: absolute;
+  left: calc(var(--vcs-pos, 0) * 100%);
+  top: 50%;
+  width: 4px;
+  height: 20px;
+  border-radius: 2px;
+  background-color: #000;
+  transform: translate(-50%, -50%);
+}
+
+.vcs-popover-value {
+  position: absolute;
+  left: calc(var(--vcs-pos, 0) * 100%);
+  top: calc(100% + 0.2rem);
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-weight: bold;
+}
+
+.vcs-popover-range {
+  display: flex;
+  justify-content: space-between;
+  color: #666;
+}
+
+.gin--dark-mode .vcs-popover {
+  border-color: #3f3f46;
+  background: #1f1f23;
+  color: #eee;
+}
+
+.gin--dark-mode .vcs-popover-marker {
+  background-color: #fff;
+}
+
+.gin--dark-mode .vcs-popover-range {
+  color: #aaa;
+}

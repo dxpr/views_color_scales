@@ -1,0 +1,67 @@
+name: Scale popover
+description: 'Color-scaled value with an on-hover popover explaining the scale.'
+props:
+  type: object
+  required:
+    - display_value
+    - position
+    - range_min
+    - range_max
+    - min_color
+    - max_color
+    - bg_color
+    - text_color
+    - popover_id
+  properties:
+    display_value:
+      type: string
+      title: 'Display value'
+      description: 'The formatted value shown in the cell and on the marker.'
+    position:
+      type: number
+      title: Position
+      description: 'Position of the value within the range, from 0 to 1.'
+    range_min:
+      type: number
+      title: 'Range minimum'
+      description: 'Minimum of the scale range.'
+    range_max:
+      type: number
+      title: 'Range maximum'
+      description: 'Maximum of the scale range.'
+    min_label:
+      type: string
+      title: 'Minimum label'
+      description: 'Semantic label for the minimum end of the scale.'
+    mid_label:
+      type: string
+      title: 'Middle label'
+      description: 'Semantic label for the middle of the scale.'
+    max_label:
+      type: string
+      title: 'Maximum label'
+      description: 'Semantic label for the maximum end of the scale.'
+    min_color:
+      type: string
+      title: 'Minimum color'
+      description: 'Hex color for the minimum end of the scale.'
+    max_color:
+      type: string
+      title: 'Maximum color'
+      description: 'Hex color for the maximum end of the scale.'
+    bg_color:
+      type: string
+      title: 'Background color'
+      description: 'Interpolated background color for the value.'
+    text_color:
+      type: string
+      title: 'Text color'
+      description: 'Contrasting text color for the value.'
+    popover_id:
+      type: string
+      title: 'Popover ID'
+      description: 'Unique DOM id linking the trigger to its popover.'
+libraryOverrides:
+  dependencies:
+    - core/drupal
+    - core/once

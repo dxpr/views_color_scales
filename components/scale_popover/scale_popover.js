@@ -34,6 +34,10 @@
           if (!popover || typeof popover.showPopover !== 'function') {
             return;
           }
+          // The title attribute is only the fallback for browsers without
+          // the Popover API; drop it here so the native tooltip and the
+          // popover never show together.
+          trigger.removeAttribute('title');
           const show = () => {
             if (!popover.matches(':popover-open')) {
               popover.showPopover();
@@ -47,6 +51,9 @@
           };
           trigger.addEventListener('mouseenter', show);
           trigger.addEventListener('focusin', show);
+          // Touch devices fire neither hover nor keyboard focus reliably;
+          // a tap shows the popover and light dismiss closes it.
+          trigger.addEventListener('click', show);
           trigger.addEventListener('mouseleave', hide);
           trigger.addEventListener('focusout', hide);
         },

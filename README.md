@@ -11,6 +11,8 @@ This module automatically enhances ALL numeric fields in Drupal Views with optio
 - **Auto-detection**: Automatically calculates min/max values from your dataset
 - **Manual Range**: Set custom min/max values for consistent scaling
 - **Smart Text Color**: Automatically uses black or white text for optimal contrast
+- **Scale Popover**: Hovering or focusing a value shows a popover explaining the scale: a gradient bar, your labels, the range endpoints and a marker at the value position
+- **Scale Labels**: Optional min/mid/max labels give meaning to the ends of the scale, for example "Negative", "Neutral" and "Positive"
 
 ## Installation
 
@@ -30,6 +32,7 @@ This module automatically enhances ALL numeric fields in Drupal Views with optio
    - **Auto-detect min/max**: Recommended for most use cases
    - **Manual Range**: Set specific min/max values for consistent scaling
    - **Color Configuration**: Customize the minimum and maximum colors per field
+   - **Scale Labels**: Set minimum, middle and maximum labels shown in the scale popover
 
 ### Perfect Use Cases
 
@@ -72,12 +75,13 @@ Result: Scores like -0.8 show as red, 0.0 as yellow, +0.8 as green.
 - Extends Drupal's core `NumericField` plugin
 - Calculates colors using linear interpolation
 - Uses HSV color space for smooth transitions
-- Adds minimal CSS for styling
+- Renders through the `views_color_scales:scale_popover` single-directory component
+- Scale popover uses the native Popover API, toggled on hover and keyboard focus; the `title` attribute remains as a no-JavaScript fallback
 - Compatible with all Views display formats
 
 ## Compatibility
 
-- **Drupal**: 10.2+ and 11.x
+- **Drupal**: 10.3+ and 11.x
 - **PHP**: 8.1+
 - **Dependencies**: Views (core module)
 

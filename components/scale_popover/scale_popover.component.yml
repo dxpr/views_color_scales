@@ -1,9 +1,13 @@
 name: Scale popover
 description: 'Color-scaled value with an on-hover popover explaining the scale.'
+slots:
+  display_value:
+    title: 'Display value'
+    description: 'The formatted value shown in the cell and on the marker, pre-rendered by the numeric field handler.'
 props:
   type: object
   required:
-    - display_value
+    - value
     - position
     - range_min
     - range_max
@@ -13,10 +17,10 @@ props:
     - text_color
     - popover_id
   properties:
-    display_value:
-      type: string
-      title: 'Display value'
-      description: 'The formatted value shown in the cell and on the marker.'
+    value:
+      type: number
+      title: Value
+      description: 'The raw numeric value, used in the title attribute fallback.'
     position:
       type: number
       title: Position

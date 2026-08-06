@@ -65,8 +65,8 @@ class NumericColorScale extends NumericField {
     $options = parent::defineOptions();
 
     $options['color_scale'] = ['default' => FALSE];
-    $options['color_scale_min'] = ['default' => 0];
-    $options['color_scale_max'] = ['default' => 100];
+    $options['color_scale_min'] = ['default' => '0'];
+    $options['color_scale_max'] = ['default' => '100'];
     $options['color_scale_auto'] = ['default' => TRUE];
     $options['color_scale_min_color'] = ['default' => '#FFB3B3'];
     $options['color_scale_max_color'] = ['default' => '#B3FFB3'];
@@ -228,7 +228,7 @@ class NumericColorScale extends NumericField {
       '#type' => 'component',
       '#component' => 'views_color_scales:scale_popover',
       '#props' => [
-        'display_value' => (string) $rendered,
+        'value' => (float) $value,
         'position' => $position,
         'range_min' => $min,
         'range_max' => $max,
@@ -240,6 +240,9 @@ class NumericColorScale extends NumericField {
         'bg_color' => $backgroundColor,
         'text_color' => $textColor,
         'popover_id' => Html::getUniqueId('vcs-popover'),
+      ],
+      '#slots' => [
+        'display_value' => $rendered,
       ],
     ];
 

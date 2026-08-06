@@ -9,6 +9,17 @@
   cursor: default;
 }
 
+/* Browsers without the Popover API ignore the popover attribute and
+   would show every popover inline; hide by default and rely on
+   :popover-open, which only supporting browsers can match. */
+.vcs-popover {
+  display: none;
+}
+
+.vcs-popover:popover-open {
+  display: block;
+}
+
 .vcs-popover {
   position: fixed;
   inset: auto;

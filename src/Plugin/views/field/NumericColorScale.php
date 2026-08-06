@@ -2,6 +2,7 @@
 
 namespace Drupal\views_color_scales\Plugin\views\field;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\views\Plugin\views\field\NumericField;
@@ -69,6 +70,9 @@ class NumericColorScale extends NumericField {
     $options['color_scale_auto'] = ['default' => TRUE];
     $options['color_scale_min_color'] = ['default' => '#FFB3B3'];
     $options['color_scale_max_color'] = ['default' => '#B3FFB3'];
+    $options['color_scale_min_label'] = ['default' => ''];
+    $options['color_scale_mid_label'] = ['default' => ''];
+    $options['color_scale_max_label'] = ['default' => ''];
 
     return $options;
   }
@@ -150,7 +154,37 @@ class NumericColorScale extends NumericField {
       '#default_value' => $this->options['color_scale_max_color'],
     ];
 
+    $form['color_scale_labels'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Scale Labels'),
+      '#description' => $this->t('Semantic labels shown in the scale popover when hovering or focusing a value, for example "Negative", "Neutral" and "Positive".'),
+      '#states' => [
+        'visible' => [
+          ':input[name="options[color_scale]"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
 
+    $form['color_scale_labels']['color_scale_min_label'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Minimum Value Label'),
+      '#description' => $this->t('Label for the lowest end of the scale.'),
+      '#default_value' => $this->options['color_scale_min_label'],
+    ];
+
+    $form['color_scale_labels']['color_scale_mid_label'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Middle Value Label'),
+      '#description' => $this->t('Label for the middle of the scale.'),
+      '#default_value' => $this->options['color_scale_mid_label'],
+    ];
+
+    $form['color_scale_labels']['color_scale_max_label'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Maximum Value Label'),
+      '#description' => $this->t('Label for the highest end of the scale.'),
+      '#default_value' => $this->options['color_scale_max_label'],
+    ];
   }
 
   /**
@@ -186,22 +220,28 @@ class NumericColorScale extends NumericField {
     // Determine text color for better contrast
     $textColor = $this->getContrastColor($backgroundColor);
 
-    // Wrap in span with background color
-    $render_array = [
-      '#type' => 'html_tag',
-      '#tag' => 'span',
-      '#value' => $rendered,
-      '#attributes' => [
-        'style' => "background-color: {$backgroundColor}; color: {$textColor}; padding: 2px 6px; border-radius: 3px; display: inline-block; min-width: 40px; text-align: center;",
-        'title' => $this->t('Value: @value (Range: @min to @max)', [
-          '@value' => $value,
-          '@min' => $min,
-          '@max' => $max,
-        ]),
+    // Position of the value within the range, clamped to 0..1.
+    $clamped = max($min, min($max, (float) $value));
+    $position = round(($clamped - $min) / ($max - $min), 4);
+
+    return [
+      '#type' => 'component',
+      '#component' => 'views_color_scales:scale_popover',
+      '#props' => [
+        'display_value' => (string) $rendered,
+        'position' => $position,
+        'range_min' => $min,
+        'range_max' => $max,
+        'min_label' => (string) $this->options['color_scale_min_label'],
+        'mid_label' => (string) $this->options['color_scale_mid_label'],
+        'max_label' => (string) $this->options['color_scale_max_label'],
+        'min_color' => $this->options['color_scale_min_color'],
+        'max_color' => $this->options['color_scale_max_color'],
+        'bg_color' => $backgroundColor,
+        'text_color' => $textColor,
+        'popover_id' => Html::getUniqueId('vcs-popover'),
       ],
     ];
-    
-    return $this->renderer->render($render_array);
   }
 
   /**

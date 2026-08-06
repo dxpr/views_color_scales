@@ -224,7 +224,7 @@ class NumericColorScale extends NumericField {
     $clamped = max($min, min($max, (float) $value));
     $position = round(($clamped - $min) / ($max - $min), 4);
 
-    return [
+    $build = [
       '#type' => 'component',
       '#component' => 'views_color_scales:scale_popover',
       '#props' => [
@@ -242,6 +242,8 @@ class NumericColorScale extends NumericField {
         'popover_id' => Html::getUniqueId('vcs-popover'),
       ],
     ];
+
+    return $this->renderer->render($build);
   }
 
   /**

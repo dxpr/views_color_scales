@@ -28,6 +28,14 @@
   display: block;
 }
 
+@media (prefers-color-scheme: dark) {
+  .vcs-popover {
+    border-color: #3f3f46;
+    background: #1f1f23;
+    color: #eee;
+  }
+}
+
 .gin--dark-mode .vcs-popover {
   border-color: #3f3f46;
   background: #1f1f23;

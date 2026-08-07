@@ -174,6 +174,7 @@ class NumericColorScale extends NumericField {
       '#type' => 'component',
       '#component' => 'views_color_scales:scale_popover',
       '#props' => [
+        'has_popover' => !empty($popover_content),
         'value' => (float) $value,
         'bg_color' => $backgroundColor,
         'text_color' => $textColor,

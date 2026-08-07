@@ -38,7 +38,9 @@
           };
           trigger.addEventListener('mouseenter', show);
           trigger.addEventListener('focusin', show);
-          trigger.addEventListener('click', show);
+          trigger.addEventListener('click', () => {
+            popover.matches(':popover-open') ? hide() : show();
+          });
           trigger.addEventListener('mouseleave', hide);
           trigger.addEventListener('focusout', hide);
         },

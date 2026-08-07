@@ -15,6 +15,10 @@ props:
     - text_color
     - popover_id
   properties:
+    has_popover:
+      type: boolean
+      title: 'Has popover'
+      description: 'Whether the popover has content to display.'
     value:
       type: number
       title: Value

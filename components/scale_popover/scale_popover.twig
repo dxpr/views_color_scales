@@ -5,5 +5,5 @@
       aria-describedby="{{ popover_id }}"
       title="{{ 'Value: @value'|t({'@value': value}) }}">{% block display_value %}{% endblock %}</span>
 <div id="{{ popover_id }}" class="vcs-popover" popover role="tooltip">
-    {% block gauge %}{% endblock %}
+    {% block content %}{% endblock %}
 </div>

@@ -4,5 +4,4 @@ description: 'Automatically enhances ALL Views numeric fields with optional Exce
 package: Views
 core_version_requirement: ^10.3 || ^11
 dependencies:
-  - analyze:analyze
   - drupal:views

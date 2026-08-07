@@ -4,9 +4,9 @@ slots:
   display_value:
     title: 'Display value'
     description: 'The formatted value shown in the cell, pre-rendered by the numeric field handler.'
-  gauge:
-    title: 'Gauge'
-    description: 'The gauge render array (analyze_gauge theme) displayed inside the popover.'
+  content:
+    title: 'Content'
+    description: 'Render array displayed inside the popover. Populated via hook_views_color_scale_popover_alter().'
 props:
   type: object
   required:

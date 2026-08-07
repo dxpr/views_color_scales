@@ -3,6 +3,7 @@
 namespace Drupal\views_color_scales\Plugin\views\field;
 
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\views\Plugin\views\field\NumericField;
@@ -21,28 +22,16 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 #[ViewsField("numeric_color_scale")]
 class NumericColorScale extends NumericField {
 
-  /**
-   * The renderer service.
-   *
-   * @var \Drupal\Core\Render\RendererInterface
-   */
-  protected $renderer;
-
-  /**
-   * Constructs a NumericColorScale object.
-   *
-   * @param array $configuration
-   *   A configuration array containing information about the plugin instance.
-   * @param string $plugin_id
-   *   The plugin_id for the plugin instance.
-   * @param mixed $plugin_definition
-   *   The plugin implementation definition.
-   * @param \Drupal\Core\Render\RendererInterface $renderer
-   *   The renderer service.
-   */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, RendererInterface $renderer) {
+  public function __construct(
+    array $configuration,
+    $plugin_id,
+    $plugin_definition,
+    RendererInterface $renderer,
+    ModuleHandlerInterface $moduleHandler,
+  ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->renderer = $renderer;
+    $this->moduleHandler = $moduleHandler;
   }
 
   /**
@@ -54,7 +43,8 @@ class NumericColorScale extends NumericField {
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('renderer')
+      $container->get('renderer'),
+      $container->get('module_handler'),
     );
   }
 
@@ -70,9 +60,6 @@ class NumericColorScale extends NumericField {
     $options['color_scale_auto'] = ['default' => TRUE];
     $options['color_scale_min_color'] = ['default' => '#FFB3B3'];
     $options['color_scale_max_color'] = ['default' => '#B3FFB3'];
-    $options['color_scale_min_label'] = ['default' => ''];
-    $options['color_scale_mid_label'] = ['default' => ''];
-    $options['color_scale_max_label'] = ['default' => ''];
 
     return $options;
   }
@@ -154,37 +141,6 @@ class NumericColorScale extends NumericField {
       '#default_value' => $this->options['color_scale_max_color'],
     ];
 
-    $form['color_scale_labels'] = [
-      '#type' => 'details',
-      '#title' => $this->t('Scale Labels'),
-      '#description' => $this->t('Semantic labels shown in the scale popover when hovering or focusing a value, for example "Negative", "Neutral" and "Positive".'),
-      '#states' => [
-        'visible' => [
-          ':input[name="options[color_scale]"]' => ['checked' => TRUE],
-        ],
-      ],
-    ];
-
-    $form['color_scale_labels']['color_scale_min_label'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Minimum Value Label'),
-      '#description' => $this->t('Label for the lowest end of the scale.'),
-      '#default_value' => $this->options['color_scale_min_label'],
-    ];
-
-    $form['color_scale_labels']['color_scale_mid_label'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Middle Value Label'),
-      '#description' => $this->t('Label for the middle of the scale.'),
-      '#default_value' => $this->options['color_scale_mid_label'],
-    ];
-
-    $form['color_scale_labels']['color_scale_max_label'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Maximum Value Label'),
-      '#description' => $this->t('Label for the highest end of the scale.'),
-      '#default_value' => $this->options['color_scale_max_label'],
-    ];
   }
 
   /**
@@ -215,7 +171,6 @@ class NumericColorScale extends NumericField {
     $backgroundColor = $this->calculateColor((float) $value, $colorMin, $colorMax);
     $textColor = $this->getContrastColor($backgroundColor);
 
-    // Gauge always uses the configured range so position matches detail pages.
     $gaugeMin = (float) $this->options['color_scale_min'];
     $gaugeMax = (float) $this->options['color_scale_max'];
     if ($gaugeMin == $gaugeMax) {
@@ -224,17 +179,25 @@ class NumericColorScale extends NumericField {
     $clamped = max($gaugeMin, min($gaugeMax, (float) $value));
     $position = round(($clamped - $gaugeMin) / ($gaugeMax - $gaugeMin), 4);
 
-    $gauge = [
-      '#theme' => 'analyze_gauge',
-      '#caption' => '',
-      '#range_min_label' => (string) $this->options['color_scale_min_label'],
-      '#range_mid_label' => (string) $this->options['color_scale_mid_label'],
-      '#range_max_label' => (string) $this->options['color_scale_max_label'],
-      '#range_min' => $gaugeMin,
-      '#value' => $position,
-      '#display_value' => (string) $rendered,
-      '#range_max' => $gaugeMax,
+    $popover_content = [];
+    $context = [
+      'value' => (float) $value,
+      'display_value' => $rendered,
+      'min' => $gaugeMin,
+      'max' => $gaugeMax,
+      'position' => $position,
+      'field_options' => $this->options,
+      'view' => $this->view,
+      'row' => $values,
     ];
+    $this->moduleHandler->alter('views_color_scale_popover', $popover_content, $context);
+
+    $slots = [
+      'display_value' => $rendered,
+    ];
+    if (!empty($popover_content)) {
+      $slots['content'] = $popover_content;
+    }
 
     $build = [
       '#type' => 'component',
@@ -245,10 +208,7 @@ class NumericColorScale extends NumericField {
         'text_color' => $textColor,
         'popover_id' => Html::getUniqueId('vcs-popover'),
       ],
-      '#slots' => [
-        'display_value' => $rendered,
-        'gauge' => $gauge,
-      ],
+      '#slots' => $slots,
     ];
 
     return $this->renderer->render($build);

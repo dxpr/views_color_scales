@@ -28,24 +28,6 @@
   display: block;
 }
 
-.vcs-popover .layer-wrapper {
-  padding: 0;
-  box-shadow: none;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-}
-
-.vcs-popover .analyze--gauge {
-  margin: 0;
-  overflow: visible;
-  padding: 0 2rem;
-}
-
-.vcs-popover .analyze--gauge caption:empty {
-  display: none;
-}
-
 .gin--dark-mode .vcs-popover {
   border-color: #3f3f46;
   background: #1f1f23;

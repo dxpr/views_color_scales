@@ -3,21 +3,7 @@
       style="--vcs-bg: {{ bg_color }}; --vcs-fg: {{ text_color }};"
       data-vcs-popover="{{ popover_id }}"
       aria-describedby="{{ popover_id }}"
-      title="{{ 'Value: @value (Range: @min to @max)'|t({'@value': value, '@min': range_min, '@max': range_max}) }}">{% block display_value %}{% endblock %}</span>
+      title="{{ 'Value: @value'|t({'@value': value}) }}">{% block display_value %}{% endblock %}</span>
 <div id="{{ popover_id }}" class="vcs-popover" popover role="tooltip">
-    {% if min_label or mid_label or max_label %}
-        <div class="vcs-popover-labels">
-            <span class="vcs-popover-label vcs-popover-label--min">{{ min_label }}</span>
-            <span class="vcs-popover-label vcs-popover-label--mid">{{ mid_label }}</span>
-            <span class="vcs-popover-label vcs-popover-label--max">{{ max_label }}</span>
-        </div>
-    {% endif %}
-    <div class="vcs-popover-scale" style="--vcs-min-color: {{ min_color }}; --vcs-max-color: {{ max_color }}; --vcs-pos: {{ position }};">
-        <span class="vcs-popover-marker"></span>
-        <span class="vcs-popover-value">{{ block('display_value') }}</span>
-    </div>
-    <div class="vcs-popover-range">
-        <span class="vcs-popover-range-min">{{ range_min }}</span>
-        <span class="vcs-popover-range-max">{{ range_max }}</span>
-    </div>
+    {% block gauge %}{% endblock %}
 </div>

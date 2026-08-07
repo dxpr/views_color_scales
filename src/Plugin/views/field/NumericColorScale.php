@@ -224,25 +224,30 @@ class NumericColorScale extends NumericField {
     $clamped = max($min, min($max, (float) $value));
     $position = round(($clamped - $min) / ($max - $min), 4);
 
+    $gauge = [
+      '#theme' => 'analyze_gauge',
+      '#caption' => '',
+      '#range_min_label' => (string) $this->options['color_scale_min_label'],
+      '#range_mid_label' => (string) $this->options['color_scale_mid_label'],
+      '#range_max_label' => (string) $this->options['color_scale_max_label'],
+      '#range_min' => $min,
+      '#value' => $position,
+      '#display_value' => (string) $rendered,
+      '#range_max' => $max,
+    ];
+
     $build = [
       '#type' => 'component',
       '#component' => 'views_color_scales:scale_popover',
       '#props' => [
         'value' => (float) $value,
-        'position' => $position,
-        'range_min' => $min,
-        'range_max' => $max,
-        'min_label' => (string) $this->options['color_scale_min_label'],
-        'mid_label' => (string) $this->options['color_scale_mid_label'],
-        'max_label' => (string) $this->options['color_scale_max_label'],
-        'min_color' => $this->options['color_scale_min_color'],
-        'max_color' => $this->options['color_scale_max_color'],
         'bg_color' => $backgroundColor,
         'text_color' => $textColor,
         'popover_id' => Html::getUniqueId('vcs-popover'),
       ],
       '#slots' => [
         'display_value' => $rendered,
+        'gauge' => $gauge,
       ],
     ];
 

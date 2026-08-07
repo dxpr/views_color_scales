@@ -41,6 +41,10 @@
   overflow: visible;
 }
 
+.vcs-popover .analyze--gauge .analyze-range-label {
+  display: none;
+}
+
 .vcs-popover .analyze--gauge caption:empty {
   display: none;
 }

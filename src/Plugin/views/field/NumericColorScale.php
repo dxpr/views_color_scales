@@ -3,13 +3,10 @@
 namespace Drupal\views_color_scales\Plugin\views\field;
 
 use Drupal\Component\Utility\Html;
-use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\RendererInterface;
 use Drupal\views\Plugin\views\field\NumericField;
 use Drupal\views\Attribute\ViewsField;
 use Drupal\views\ResultRow;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Render a field as a numeric value with Excel-style color scaling.
@@ -21,32 +18,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 #[ViewsField("numeric_color_scale")]
 class NumericColorScale extends NumericField {
-
-  public function __construct(
-    array $configuration,
-    $plugin_id,
-    $plugin_definition,
-    RendererInterface $renderer,
-    ModuleHandlerInterface $moduleHandler,
-  ) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->renderer = $renderer;
-    $this->moduleHandler = $moduleHandler;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    /** @var static */
-    return new self(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('renderer'),
-      $container->get('module_handler'),
-    );
-  }
 
   /**
    * {@inheritdoc}
@@ -190,7 +161,7 @@ class NumericColorScale extends NumericField {
       'view' => $this->view,
       'row' => $values,
     ];
-    $this->moduleHandler->alter('views_color_scale_popover', $popover_content, $context);
+    $this->getModuleHandler()->alter('views_color_scale_popover', $popover_content, $context);
 
     $slots = [
       'display_value' => $rendered,
@@ -211,7 +182,7 @@ class NumericColorScale extends NumericField {
       '#slots' => $slots,
     ];
 
-    return $this->renderer->render($build);
+    return $this->getRenderer()->render($build);
   }
 
   /**

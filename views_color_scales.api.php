@@ -24,7 +24,8 @@
  * @param array $context
  *   Contextual information about the value being rendered:
  *   - value: (float) The raw numeric value.
- *   - display_value: (string) The formatted value shown in the table cell.
+ *   - display_value: (\Drupal\Component\Render\MarkupInterface|string) The
+ *     formatted value shown in the table cell.
  *   - min: (float) The configured minimum of the gauge range.
  *   - max: (float) The configured maximum of the gauge range.
  *   - position: (float) Normalised position within [min, max], from 0 to 1.

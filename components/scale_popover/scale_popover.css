@@ -38,6 +38,7 @@
 
 .vcs-popover .analyze--gauge {
   margin: 0;
+  overflow: visible;
 }
 
 .vcs-popover .analyze--gauge caption:empty {

@@ -199,30 +199,30 @@ class NumericColorScale extends NumericField {
       return $rendered;
     }
 
-    // Get min/max values
+    // Color interpolation range: auto-detected or configured.
     if ($this->options['color_scale_auto']) {
       $minMax = $this->getAutoMinMax();
-      $min = $minMax['min'];
-      $max = $minMax['max'];
+      $colorMin = $minMax['min'];
+      $colorMax = $minMax['max'];
     } else {
-      $min = (float) $this->options['color_scale_min'];
-      $max = (float) $this->options['color_scale_max'];
+      $colorMin = (float) $this->options['color_scale_min'];
+      $colorMax = (float) $this->options['color_scale_max'];
+    }
+    if ($colorMin == $colorMax) {
+      $colorMax = $colorMin + 1;
     }
 
-    // Ensure min != max to avoid division by zero
-    if ($min == $max) {
-      $max = $min + 1;
-    }
-
-    // Calculate color
-    $backgroundColor = $this->calculateColor((float) $value, $min, $max);
-
-    // Determine text color for better contrast
+    $backgroundColor = $this->calculateColor((float) $value, $colorMin, $colorMax);
     $textColor = $this->getContrastColor($backgroundColor);
 
-    // Position of the value within the range, clamped to 0..1.
-    $clamped = max($min, min($max, (float) $value));
-    $position = round(($clamped - $min) / ($max - $min), 4);
+    // Gauge always uses the configured range so position matches detail pages.
+    $gaugeMin = (float) $this->options['color_scale_min'];
+    $gaugeMax = (float) $this->options['color_scale_max'];
+    if ($gaugeMin == $gaugeMax) {
+      $gaugeMax = $gaugeMin + 1;
+    }
+    $clamped = max($gaugeMin, min($gaugeMax, (float) $value));
+    $position = round(($clamped - $gaugeMin) / ($gaugeMax - $gaugeMin), 4);
 
     $gauge = [
       '#theme' => 'analyze_gauge',
@@ -230,10 +230,10 @@ class NumericColorScale extends NumericField {
       '#range_min_label' => (string) $this->options['color_scale_min_label'],
       '#range_mid_label' => (string) $this->options['color_scale_mid_label'],
       '#range_max_label' => (string) $this->options['color_scale_max_label'],
-      '#range_min' => $min,
+      '#range_min' => $gaugeMin,
       '#value' => $position,
       '#display_value' => (string) $rendered,
-      '#range_max' => $max,
+      '#range_max' => $gaugeMax,
     ];
 
     $build = [

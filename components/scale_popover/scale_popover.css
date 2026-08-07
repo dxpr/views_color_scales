@@ -39,10 +39,7 @@
 .vcs-popover .analyze--gauge {
   margin: 0;
   overflow: visible;
-}
-
-.vcs-popover .analyze--gauge .analyze-range-label {
-  display: none;
+  padding: 0 2rem;
 }
 
 .vcs-popover .analyze--gauge caption:empty {

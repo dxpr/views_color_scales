@@ -1,0 +1,41 @@
+name: Scale popover
+description: 'Color-scaled value with an on-hover popover showing the gauge.'
+slots:
+  display_value:
+    title: 'Display value'
+    description: 'The formatted value shown in the cell, pre-rendered by the numeric field handler.'
+  content:
+    title: 'Content'
+    description: 'Render array displayed inside the popover. Populated via hook_views_color_scale_popover_alter().'
+props:
+  type: object
+  required:
+    - value
+    - bg_color
+    - text_color
+    - popover_id
+  properties:
+    has_popover:
+      type: boolean
+      title: 'Has popover'
+      description: 'Whether the popover has content to display.'
+    value:
+      type: number
+      title: Value
+      description: 'The raw numeric value, used in the title attribute fallback.'
+    bg_color:
+      type: string
+      title: 'Background color'
+      description: 'Interpolated background color for the value.'
+    text_color:
+      type: string
+      title: 'Text color'
+      description: 'Contrasting text color for the value.'
+    popover_id:
+      type: string
+      title: 'Popover ID'
+      description: 'Unique DOM id linking the trigger to its popover.'
+libraryOverrides:
+  dependencies:
+    - core/drupal
+    - core/once

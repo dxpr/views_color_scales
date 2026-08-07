@@ -1,16 +1,18 @@
 # Views Color Scales
 
-This module automatically enhances ALL numeric fields in Drupal Views with optional Excel-style color scaling. No duplicate fields, no complex setup - just enhanced formatting options.
+This module automatically enhances ALL numeric fields in Drupal Views with optional Excel-style color scaling. No duplicate fields, no complex setup: just enhanced formatting options.
 
 ## Features
 
 - **Seamless Integration**: Automatically enhances all numeric fields in Views
 - **Optional Color Scaling**: Enable/disable per field as needed
 - **Configurable Colors**: Choose any colors for minimum and maximum values per field
-- **Excel-style Gradients**: Smooth color transitions between your chosen colors
+- **Excel-style Gradients**: Smooth color transitions between your chosen colours
 - **Auto-detection**: Automatically calculates min/max values from your dataset
 - **Manual Range**: Set custom min/max values for consistent scaling
-- **Smart Text Color**: Automatically uses black or white text for optimal contrast
+- **Smart Text Colour**: Automatically uses black or white text for optimal contrast
+- **Scale Popover**: Hovering or focusing a value shows a popover; other modules can fill it with any content (gauges, images, tables, etc.) via an alter hook
+- **Fully Extensible**: The popover is a generic container; see [Extending the popover](#extending-the-popover) below
 
 ## Installation
 
@@ -20,91 +22,154 @@ This module automatically enhances ALL numeric fields in Drupal Views with optio
 
 ## Usage
 
-### Setting up Color Scaling
+### Setting up colour scaling
 
 1. **Edit any View** with numeric data
 2. **Configure any numeric field** (click on the field name)
 3. **Find the new "Color Scale" options** among the standard formatting settings
 4. **Enable Color Scale** and configure:
-   - ✅ **Enable Color Scale**: Check this box
+   - **Enable Color Scale**: Check this box
    - **Auto-detect min/max**: Recommended for most use cases
    - **Manual Range**: Set specific min/max values for consistent scaling
-   - **Color Configuration**: Customize the minimum and maximum colors per field
+   - **Colour Configuration**: Customise the minimum and maximum colours per field
 
-### Perfect Use Cases
+### Perfect use cases
 
 - **Sentiment Analysis Scores**: -1.0 (red) to +1.0 (green)
-- **Performance Metrics**: 0% (red) to 100% (green)  
+- **Performance Metrics**: 0% (red) to 100% (green)
 - **Survey Ratings**: 1 (red) to 5 (green)
 - **Financial Data**: Losses (red) to profits (green)
 
-### Example: Sentiment Analysis Dashboard
+## Extending the popover
 
+The popover is a generic, open container. Any module can inject any content
+into it (a gauge, chart, image, table, or anything else) by implementing
+`hook_views_color_scale_popover_alter()`. Views Color Scales provides the
+popover shell and positioning; your module controls what appears inside.
+
+### How it works
+
+When a colour-scaled value is rendered, the module dispatches an alter hook
+with an empty render array and a context array describing the value. Your
+module fills in the render array; the result is placed inside the popover's
+`content` slot.
+
+If no module responds, the popover remains empty and is not shown.
+
+### Using a `#[Hook]` class (Drupal 11)
+
+```php
+<?php
+
+namespace Drupal\my_module\Hook;
+
+use Drupal\Core\Hook\Attribute\Hook;
+
+class ViewsColorScalePopoverHooks {
+
+  #[Hook('views_color_scale_popover_alter')]
+  public function alterPopover(array &$content, array $context): void {
+    // Only act on your module's base table.
+    if ($context['view']->storage->get('base_table') !== 'my_module_results') {
+      return;
+    }
+
+    $content = [
+      '#theme' => 'my_module_gauge',
+      '#value' => $context['position'],
+      '#display_value' => $context['display_value'],
+      '#range_min' => $context['min'],
+      '#range_max' => $context['max'],
+    ];
+  }
+
+}
 ```
-Field: Sentiment Score
-Type: Numeric Color Scale
-✅ Enable Color Scale
-✅ Auto-detect min/max values
-Min Value: -1.0 (if manual)
-Max Value: 1.0 (if manual)
+
+### Using a procedural hook
+
+```php
+/**
+ * Implements hook_views_color_scale_popover_alter().
+ */
+function my_module_views_color_scale_popover_alter(array &$content, array $context): void {
+  if ($context['view']->storage->get('base_table') !== 'my_module_results') {
+    return;
+  }
+
+  $content = [
+    '#markup' => '<p>' . t('Score: @value', ['@value' => $context['display_value']]) . '</p>',
+  ];
+}
 ```
 
-Result: Scores like -0.8 show as red, 0.0 as yellow, +0.8 as green.
+### Context array
 
-## Configuration Options
+The `$context` array contains:
 
-### Color Scale Settings
+| Key              | Type               | Description                                           |
+|------------------|--------------------|-------------------------------------------------------|
+| `value`          | `float`            | The raw numeric value                                 |
+| `display_value`  | `string`           | The formatted value shown in the table cell           |
+| `min`            | `float`            | Configured minimum of the gauge range                 |
+| `max`            | `float`            | Configured maximum of the gauge range                 |
+| `position`       | `float`            | Normalised position within [min, max], from 0 to 1    |
+| `field_options`  | `array`            | All options from the Views field handler              |
+| `view`           | `ViewExecutable`   | The executing view                                    |
+| `row`            | `ResultRow`        | The current result row, for accessing other columns   |
 
-- **Enable Color Scale**: Turn color scaling on/off
-- **Auto-detect min/max**: Automatically find the range from your data
-- **Manual Range**: Set specific minimum and maximum values
-- **Standard Numeric Options**: All normal formatting options still available
+### Controlling popover dimensions
 
-### Color Scale Behavior
+The popover has a default width of `clamp(240px, 50vw, 420px)`. To override
+this for your content, attach a CSS library in your render array:
 
-- **Soft Red (#FFB3B3)**: Minimum values (worst performance)
-- **Light Pink (#E6CCE6)**: Middle values (average performance)  
-- **Soft Green (#B3FFB3)**: Maximum values (best performance)
-- **Text Color**: Automatically black or white for best readability
+```php
+$content = [
+  '#theme' => 'my_module_wide_chart',
+  '#attached' => [
+    'library' => ['my_module/popover_overrides'],
+  ],
+];
+```
 
-## Technical Details
+Your CSS can target the `.vcs-popover` class:
+
+```css
+.vcs-popover {
+  width: clamp(320px, 60vw, 600px);
+}
+```
+
+### Full API reference
+
+See `views_color_scales.api.php` for the complete hook documentation.
+
+## Technical details
 
 - Extends Drupal's core `NumericField` plugin
-- Calculates colors using linear interpolation
-- Uses HSV color space for smooth transitions
-- Adds minimal CSS for styling
+- Calculates colours using linear interpolation
+- Renders through the `views_color_scales:scale_popover` single-directory component
+- Scale popover uses the native Popover API, toggled on hover and keyboard focus; the `title` attribute remains as a no-JavaScript fallback
 - Compatible with all Views display formats
 
 ## Compatibility
 
-- **Drupal**: 10.2+ and 11.x
+- **Drupal**: 10.3+ and 11.x
 - **PHP**: 8.1+
 - **Dependencies**: Views (core module)
 
-## Examples in Action
-
-Perfect for these analysis modules:
-- **Sentiment Analysis Results**: Color-code sentiment scores
-- **Brand Voice Analysis**: Visualize alignment scores  
-- **Performance Metrics**: Highlight best/worst performers
-- **Survey Results**: Quick visual feedback on ratings
-
 ## Troubleshooting
 
-### Colors not showing?
+### Colours not showing?
 - Ensure "Enable Color Scale" is checked
 - Verify the field contains numeric data
 - Check that min/max values are different
 
-### All same color?
+### All same colour?
 - Your data might all be the same value
 - Try "Auto-detect min/max" instead of manual range
 - Check data source for variety in values
 
-### Text hard to read?
-- The module automatically chooses text color
-- If issues persist, try custom CSS overrides
-
-## Support
-
-This module was created to enhance Views-based reporting and dashboards. It works excellently with sentiment analysis, brand voice analysis, and other numeric scoring systems.
+### Popover empty?
+- Ensure you have a module implementing `hook_views_color_scale_popover_alter()` for your view's base table
+- Clear caches after adding a new hook implementation

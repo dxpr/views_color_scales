@@ -1,0 +1,8 @@
+<span class="vcs-value"
+      {% if has_popover %}tabindex="0" data-vcs-popover="{{ popover_id }}" aria-describedby="{{ popover_id }}" title="{{ 'Value: @value'|t({'@value': value}) }}"{% endif %}
+      style="--vcs-bg: {{ bg_color }}; --vcs-fg: {{ text_color }};">{% block display_value %}{% endblock %}</span>
+{% if has_popover %}
+<div id="{{ popover_id }}" class="vcs-popover" popover role="tooltip">
+    {% block content %}{% endblock %}
+</div>
+{% endif %}

@@ -2,12 +2,11 @@
 
 namespace Drupal\views_color_scales\Plugin\views\field;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\RendererInterface;
 use Drupal\views\Plugin\views\field\NumericField;
 use Drupal\views\Attribute\ViewsField;
 use Drupal\views\ResultRow;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Render a field as a numeric value with Excel-style color scaling.
@@ -21,51 +20,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class NumericColorScale extends NumericField {
 
   /**
-   * The renderer service.
-   *
-   * @var \Drupal\Core\Render\RendererInterface
-   */
-  protected $renderer;
-
-  /**
-   * Constructs a NumericColorScale object.
-   *
-   * @param array $configuration
-   *   A configuration array containing information about the plugin instance.
-   * @param string $plugin_id
-   *   The plugin_id for the plugin instance.
-   * @param mixed $plugin_definition
-   *   The plugin implementation definition.
-   * @param \Drupal\Core\Render\RendererInterface $renderer
-   *   The renderer service.
-   */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, RendererInterface $renderer) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->renderer = $renderer;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    /** @var static */
-    return new self(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('renderer')
-    );
-  }
-
-  /**
    * {@inheritdoc}
    */
   protected function defineOptions() {
     $options = parent::defineOptions();
 
     $options['color_scale'] = ['default' => FALSE];
-    $options['color_scale_min'] = ['default' => 0];
-    $options['color_scale_max'] = ['default' => 100];
+    $options['color_scale_min'] = ['default' => '0'];
+    $options['color_scale_max'] = ['default' => '100'];
     $options['color_scale_auto'] = ['default' => TRUE];
     $options['color_scale_min_color'] = ['default' => '#FFB3B3'];
     $options['color_scale_max_color'] = ['default' => '#B3FFB3'];
@@ -150,7 +112,6 @@ class NumericColorScale extends NumericField {
       '#default_value' => $this->options['color_scale_max_color'],
     ];
 
-
   }
 
   /**
@@ -165,43 +126,64 @@ class NumericColorScale extends NumericField {
       return $rendered;
     }
 
-    // Get min/max values
+    // Color interpolation range: auto-detected or configured.
     if ($this->options['color_scale_auto']) {
       $minMax = $this->getAutoMinMax();
-      $min = $minMax['min'];
-      $max = $minMax['max'];
+      $colorMin = $minMax['min'];
+      $colorMax = $minMax['max'];
     } else {
-      $min = (float) $this->options['color_scale_min'];
-      $max = (float) $this->options['color_scale_max'];
+      $colorMin = (float) $this->options['color_scale_min'];
+      $colorMax = (float) $this->options['color_scale_max'];
+    }
+    if ($colorMin == $colorMax) {
+      $colorMax = $colorMin + 1;
     }
 
-    // Ensure min != max to avoid division by zero
-    if ($min == $max) {
-      $max = $min + 1;
-    }
-
-    // Calculate color
-    $backgroundColor = $this->calculateColor((float) $value, $min, $max);
-
-    // Determine text color for better contrast
+    $backgroundColor = $this->calculateColor((float) $value, $colorMin, $colorMax);
     $textColor = $this->getContrastColor($backgroundColor);
 
-    // Wrap in span with background color
-    $render_array = [
-      '#type' => 'html_tag',
-      '#tag' => 'span',
-      '#value' => $rendered,
-      '#attributes' => [
-        'style' => "background-color: {$backgroundColor}; color: {$textColor}; padding: 2px 6px; border-radius: 3px; display: inline-block; min-width: 40px; text-align: center;",
-        'title' => $this->t('Value: @value (Range: @min to @max)', [
-          '@value' => $value,
-          '@min' => $min,
-          '@max' => $max,
-        ]),
-      ],
+    $gaugeMin = (float) $this->options['color_scale_min'];
+    $gaugeMax = (float) $this->options['color_scale_max'];
+    if ($gaugeMin == $gaugeMax) {
+      $gaugeMax = $gaugeMin + 1;
+    }
+    $clamped = max($gaugeMin, min($gaugeMax, (float) $value));
+    $position = round(($clamped - $gaugeMin) / ($gaugeMax - $gaugeMin), 4);
+
+    $popover_content = [];
+    $context = [
+      'value' => (float) $value,
+      'display_value' => $rendered,
+      'min' => $gaugeMin,
+      'max' => $gaugeMax,
+      'position' => $position,
+      'field_options' => $this->options,
+      'view' => $this->view,
+      'row' => $values,
     ];
-    
-    return $this->renderer->render($render_array);
+    $this->getModuleHandler()->alter('views_color_scale_popover', $popover_content, $context);
+
+    $slots = [
+      'display_value' => $rendered,
+    ];
+    if (!empty($popover_content)) {
+      $slots['content'] = $popover_content;
+    }
+
+    $build = [
+      '#type' => 'component',
+      '#component' => 'views_color_scales:scale_popover',
+      '#props' => [
+        'has_popover' => !empty($popover_content),
+        'value' => (float) $value,
+        'bg_color' => $backgroundColor,
+        'text_color' => $textColor,
+        'popover_id' => Html::getUniqueId('vcs-popover'),
+      ],
+      '#slots' => $slots,
+    ];
+
+    return $this->getRenderer()->render($build);
   }
 
   /**

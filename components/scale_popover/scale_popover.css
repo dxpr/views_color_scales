@@ -1,0 +1,43 @@
+.vcs-value {
+  display: inline-block;
+  min-width: 40px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-align: center;
+  background-color: var(--vcs-bg, transparent);
+  color: var(--vcs-fg, inherit);
+  cursor: default;
+}
+
+.vcs-popover {
+  display: none;
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: clamp(240px, 50vw, 420px);
+  padding: 0.75rem 1.25rem;
+  border: 1px solid #d4d4d8;
+  border-radius: 6px;
+  background: #fff;
+  color: #222;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  font-size: 0.8rem;
+}
+
+.vcs-popover:popover-open {
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  .vcs-popover {
+    border-color: #3f3f46;
+    background: #1f1f23;
+    color: #eee;
+  }
+}
+
+.gin--dark-mode .vcs-popover {
+  border-color: #3f3f46;
+  background: #1f1f23;
+  color: #eee;
+}

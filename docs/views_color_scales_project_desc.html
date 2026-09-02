@@ -1,0 +1,109 @@
+<p>This module is included in <a href="https://www.drupal.org/project/dxpr_cms">DXPR CMS</a>.</p>
+
+<blockquote>Automatically enhance all numeric fields in Drupal Views with optional Excel-style colour scaling. No duplicate fields, no complex setup: just enable the option on any numeric field and get smooth gradient backgrounds that make data instantly readable.</blockquote>
+
+<a href="/files/project-images/Screenshot%202025-06-30%20at%2019.17.33_0.png"><img src="/files/project-images/Screenshot%202025-06-30%20at%2019.17.33_0.png" alt="Views Color Scales configuration showing colour scale options on a numeric Views field with auto-detect min/max and custom colour pickers" /></a>
+
+<h3>You need Views Color Scales if</h3>
+<ul>
+  <li>You display numeric data in Views tables and want instant visual context</li>
+  <li>You build dashboards or reports that show scores, percentages, or ratings</li>
+  <li>You want Excel-style conditional formatting without any custom code</li>
+  <li>You need an extensible popover system for rich data visualisations on hover</li>
+</ul>
+
+<h2>How It Works</h2>
+<p>Edit any View with numeric data, click on a numeric field, and enable the "Color Scale" option in the field's formatting settings. The module calculates min/max values from your dataset (or accepts manual values) and renders smooth colour gradients behind each cell. Text colour switches automatically between black and white for optimal contrast.</p>
+
+<a href="/files/project-images/Screenshot%202025-06-30%20at%2019.18.05_0.png"><img src="/files/project-images/Screenshot%202025-06-30%20at%2019.18.05_0.png" alt="Views table with colour-scaled numeric columns showing gradient backgrounds from red through yellow to green based on cell values" /></a>
+
+<p>Each field's colour range is configured individually through the Views field settings, where you can pick any colours for minimum and maximum values:</p>
+
+<p><a href="/files/views-color-scales-palette.jpg"><img src="/files/views-color-scales-palette.jpg" alt="Views Color Scales colour palette picker showing minimum and maximum colour selection with auto-detect range toggle and manual min/max value inputs" /></a></p>
+
+<h2>Features</h2>
+<ul>
+  <li><strong>Seamless integration:</strong> Automatically enhances all numeric fields in Views; no duplicate field setup required</li>
+  <li><strong>Configurable colours:</strong> Choose any colours for minimum and maximum values per field</li>
+  <li><strong>Excel-style gradients:</strong> Smooth colour transitions calculated with linear interpolation</li>
+  <li><strong>Auto-detection:</strong> Automatically calculates min/max values from your dataset</li>
+  <li><strong>Manual range:</strong> Set custom min/max values for consistent scaling across views</li>
+  <li><strong>Smart text colour:</strong> Automatically uses black or white text for optimal contrast against the background</li>
+  <li><strong>Scale popover:</strong> Hovering or focusing a value shows a popover; other modules can fill it with any content via an alter hook</li>
+  <li><strong>Fully extensible:</strong> The popover is a generic container; implement <code>hook_views_color_scale_popover_alter()</code> to inject gauges, charts, images, or any render array</li>
+</ul>
+
+<h3>Perfect use cases</h3>
+<ul>
+  <li><strong>Sentiment analysis scores:</strong> -1.0 (red) to +1.0 (green)</li>
+  <li><strong>Performance metrics:</strong> 0% (red) to 100% (green)</li>
+  <li><strong>Survey ratings:</strong> 1 (red) to 5 (green)</li>
+  <li><strong>Financial data:</strong> Losses (red) to profits (green)</li>
+</ul>
+
+<h2>Getting Started</h2>
+<ol>
+  <li>Install with Composer:<br><code>composer require drupal/views_color_scales</code></li>
+  <li>Enable the module:<br><code>drush en views_color_scales</code></li>
+  <li>Edit any View, configure a numeric field, and enable "Color Scale" in the formatting options</li>
+</ol>
+
+<div class="note-tip">
+  <h4>Prefer a turnkey demo site?</h4>
+  <p>Spin up <strong>DXPR CMS</strong>: Drupal pre-configured with DXPR Builder, DXPR Theme, Views Color Scales, the Analyze suite, and security best practices.</p>
+  <p><a href="https://www.drupal.org/project/dxpr_cms" title="DXPR CMS platform">Get DXPR CMS &raquo;</a></p>
+</div>
+
+<h3>Extending the Popover</h3>
+<p>The popover is a generic container. Any module can inject content by implementing <code>hook_views_color_scale_popover_alter()</code>. Views Color Scales provides the popover shell and positioning; your module controls what appears inside. If no module responds, the popover remains empty and is not shown.</p>
+
+<pre><code>// Drupal 11 Hook attribute example
+#[Hook('views_color_scale_popover_alter')]
+public function alterPopover(array &amp;$content, array $context): void {
+  $content = [
+    '#theme' =&gt; 'my_module_gauge',
+    '#value' =&gt; $context['position'],
+  ];
+}
+</code></pre>
+
+<p>See <code>views_color_scales.api.php</code> for the complete hook documentation and context array reference.</p>
+
+<hr>
+
+<h2>FAQ</h2>
+<dl>
+  <dt>Does Views Color Scales work with all Views display formats?</dt>
+  <dd>
+    <p>Yes. The module extends Drupal's core NumericField plugin, so colour scaling works in any Views display that renders numeric fields: tables, grids, lists, and custom display plugins. The colour gradient is applied at the field formatter level, making it display-agnostic.</p>
+  </dd>
+
+  <dt>Can I use different colour ranges for different fields in the same View?</dt>
+  <dd>
+    <p>Yes. Colour scaling is configured per field. Each numeric field in a View can have its own min/max colours, its own range settings (auto-detect or manual), and can be independently enabled or disabled. This lets you use red-to-green for scores and blue-to-purple for counts in the same table.</p>
+  </dd>
+
+  <dt>Does the module require JavaScript?</dt>
+  <dd>
+    <p>The colour scaling itself is rendered server-side as inline CSS, so gradients display without JavaScript. The popover uses the native browser Popover API for hover and keyboard focus interactions. A title attribute fallback ensures the value is accessible even when JavaScript is unavailable.</p>
+  </dd>
+
+  <dt>How does auto-detect min/max work?</dt>
+  <dd>
+    <p>When auto-detect is enabled, the module scans all values in the current result set for that field and uses the lowest and highest values as the range boundaries. This means the colour scale adapts automatically to your data. For consistent scaling across different filtered views, use manual min/max values instead.</p>
+  </dd>
+
+  <dt>Can I add custom content to the popover?</dt>
+  <dd>
+    <p>Yes. Implement hook_views_color_scale_popover_alter() in your module and return any Drupal render array: a gauge, chart, image, table, or any other markup. The context array provides the raw value, normalised position, field options, and the executing View, giving you full control over what appears.</p>
+  </dd>
+</dl>
+
+<h3>Related Modules</h3>
+<ul>
+<li><a href="https://www.drupal.org/project/analyze">Analyze</a> - Content analysis framework; its plugins use Views Color Scales for score visualisation</li>
+<li><a href="https://www.drupal.org/project/analyze_ai_sentiments">AI Sentiments Analysis</a> - Sentiment scores displayed with colour-scaled Views fields</li>
+<li><a href="https://www.drupal.org/project/dxpr_builder">DXPR Builder</a> - Drag-and-drop <a href="https://dxpr.com/c/drupal-layout-builder?ref=50701">Drupal page builder</a></li>
+</ul>
+
+<p>Views Color Scales is included in <a href="https://dxpr.com/c/marketing-cms?ref=50701">DXPR CMS</a>, a turnkey <a href="https://dxpr.com/c/marketing-cms?ref=50701">marketing CMS</a> for Drupal that combines content analysis, a <a href="https://dxpr.com/c/premium-drupal-theme?ref=50701">premium Drupal theme</a>, and a <a href="https://dxpr.com/c/drupal-layout-builder?ref=50701">drag-and-drop layout builder</a>.</p>

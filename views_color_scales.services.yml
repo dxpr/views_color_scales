@@ -1,0 +1,5 @@
+
+services:
+  Drupal\views_color_scales\Hook\ViewsColorScalesHooks:
+    class: Drupal\views_color_scales\Hook\ViewsColorScalesHooks
+    autowire: true
